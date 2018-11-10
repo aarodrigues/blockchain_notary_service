@@ -1,6 +1,6 @@
-# Blockchain Web API
+# Blockchain Notary Service
 
-Javascript Web API to interacting with a private blockchain using nodejs and hapijs framework.
+Notary service blockchain using nodejs and hapijs framework.
 
 ## Getting Started
 
@@ -104,7 +104,7 @@ It should return a json from database with a following format:
 
 ## Authors
 
-* **Alano Acioli** - *Initial work* - [Private Blockchain](https://github.com/aarodrigues/private_blockchain)
+* **Alano Acioli** - *Initial work* - [Blockchain Web API](https://github.com/aarodrigues/blockchain_web_api)
 
 ## Acknowledgments
 
