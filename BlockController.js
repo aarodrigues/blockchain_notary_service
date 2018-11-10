@@ -53,15 +53,28 @@ class BlockController {
                 if(payload.body == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
                 let blockchainID = payload.body;
 
-                let message = this.requestValidate(blockchainID);
-
-                console.log(message);
+                let message = this.timeValidate(blockchainID);
                 return message
             }
         });
     }
 
-    requestValidate(id){
+    validadeUserSignature() {
+        this.server.route({
+            method: 'POST',
+            path: '/message-signature/validate',
+            handler: async (request, h) => {
+                const payload = request.payload
+                if(payload.body == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
+                let wallet_address = payload.address;
+                let message_signature = payload.signature;
+
+                //return message
+            }
+        });
+    }
+
+    timeValidate(id){
         let time = new Date().valueOf();
         let messageToSign;
         let time_left = 0;
@@ -81,18 +94,30 @@ class BlockController {
 
         let starRegistry = "starRegistry";
         messageToSign = id+":"+time+":"+starRegistry;
-        return this.createJsonResponse(messageToSign,time,time_left);
+        return this.createJsonResponse(id,messageToSign,time_left,false);
     }
 
-    createJsonResponse(message,time,time_left){
+    createJsonResponse(id,message,time_left,signed){
         let response = {
-            message_details: message,
-            request_timestamp: time,
-            time_remaining: time_left
+            address: id,
+            requestTimeStamp: idTimestamp.get(id),
+            message: message,
+            validationWindow: time_left
         };
+        if(signed){
+            response["messageSignature"] = "valid";
+            return response;
+        }
         return JSON.stringify(response);
     }
 
+    signedResponse(response){
+        let signed_response = {
+            registerStar: true,
+            status: response
+        }
+        return JSON.stringify(signed_response);
+    }
 
     /**
      * Implement a POST Endpoint to add a new Block, url: "/api/block"
