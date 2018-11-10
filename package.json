@@ -1,0 +1,16 @@
+{
+  "name": "blockchain_api",
+  "version": "1.0.0",
+  "description": "Blockchain API to Udacity Nanodegree",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alano Acioli",
+  "license": "ISC",
+  "dependencies": {
+    "crypto-js": "^3.1.9-1",
+    "hapi": "^17.6.0",
+    "level": "^4.0.0"
+  }
+}
