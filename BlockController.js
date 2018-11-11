@@ -1,10 +1,11 @@
 const SHA256 = require('crypto-js/sha256');
 const BlockClass = require('./Block.js');
 const BlockChainClass = require('./simpleChain.js');
+const BitMsg = require('bitcoinjs-message');
 
 let blockchain;
 let idTimestamp = new Map();
-let timeout = 5000;
+let timeout = 800000;
 
 /**
  * Controller Definition to encapsulate routes to work with blocks
@@ -22,6 +23,7 @@ class BlockController {
         this.getBlockByIndex();
         this.postNewBlock();
         this.requestStarRegistration();
+        this.validadeUserSignature();
     }
 
     /**
@@ -53,7 +55,7 @@ class BlockController {
                 if(payload.body == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
                 let blockchainID = payload.body;
 
-                let message = this.timeValidate(blockchainID);
+                let message = this.timeValidate(blockchainID,false);
                 return message
             }
         });
@@ -69,12 +71,17 @@ class BlockController {
                 let wallet_address = payload.address;
                 let message_signature = payload.signature;
 
-                //return message
+                let message = wallet_address+":"+idTimestamp.get(wallet_address)+":starRegistry";
+
+                let response = this.timeValidate(wallet_address,true);
+                let valid =  BitMsg.verify(message,wallet_address,message_signature);
+                return this.signedResponse(response,valid);
+
             }
         });
     }
 
-    timeValidate(id){
+    timeValidate(id,signed){
         let time = new Date().valueOf();
         let messageToSign;
         let time_left = 0;
@@ -92,9 +99,8 @@ class BlockController {
             idTimestamp.set(id,time);
         }
 
-        let starRegistry = "starRegistry";
-        messageToSign = id+":"+time+":"+starRegistry;
-        return this.createJsonResponse(id,messageToSign,time_left,false);
+        messageToSign = id+":"+time+":starRegistry";
+        return this.createJsonResponse(id,messageToSign,time_left,signed);
     }
 
     createJsonResponse(id,message,time_left,signed){
@@ -111,9 +117,10 @@ class BlockController {
         return JSON.stringify(response);
     }
 
-    signedResponse(response){
+    signedResponse(response,valid){
+        valid ? response.messageSignature = "valid" : response.messageSignature = "invalid";
         let signed_response = {
-            registerStar: true,
+            registerStar: valid,
             status: response
         }
         return JSON.stringify(signed_response);
