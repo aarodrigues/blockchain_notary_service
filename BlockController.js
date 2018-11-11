@@ -23,7 +23,7 @@ class BlockController {
         this.getBlockByIndex();
         this.postNewBlock();
         this.requestStarRegistration();
-        this.validadeUserSignature();
+        this.validateUserSignature();
     }
 
     /**
@@ -61,7 +61,7 @@ class BlockController {
         });
     }
 
-    validadeUserSignature() {
+    validateUserSignature() {
         this.server.route({
             method: 'POST',
             path: '/message-signature/validate',
