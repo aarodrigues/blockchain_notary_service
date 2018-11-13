@@ -21,9 +21,9 @@ class BlockController {
         this.blocks = [];
         this.initBlockChain();
         this.getBlockByIndex();
-        this.postNewBlock();
         this.requestStarRegistration();
         this.validateUserSignature();
+        this.starRegistration();
     }
 
     /**
@@ -67,7 +67,7 @@ class BlockController {
             path: '/message-signature/validate',
             handler: async (request, h) => {
                 const payload = request.payload
-                if(payload.body == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
+                if(payload.address == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
                 let wallet_address = payload.address;
                 let message_signature = payload.signature;
 
@@ -127,16 +127,17 @@ class BlockController {
     }
 
     /**
-     * Implement a POST Endpoint to add a new Block, url: "/api/block"
+     * Configure star registration endpoint to add a new Block, url: "/api/block"
      */
-    postNewBlock() {
+    starRegistration() {
         this.server.route({
             method: 'POST',
             path: '/block',
             handler: async (request, h) => {
                 const payload = request.payload
-                if(payload.body == "") return "Erro, wasn't possible to create block.\n(Empty payload)";
-                let block = new BlockClass.Block(payload.body);
+                if(payload.address == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
+
+                let block = new BlockClass.Block(payload);
                 const newBlock = blockchain.addBlock(block);
                 return newBlock;
             }
