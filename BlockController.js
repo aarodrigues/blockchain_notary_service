@@ -5,7 +5,9 @@ const BitMsg = require('bitcoinjs-message');
 
 let blockchain;
 let idTimestamp = new Map();
-let timeout = 800000;
+
+const timeoutRequestsWindowTime = 5*60*1000;
+const TimeoutMempoolValidWindowTime = 30*60*1000;
 
 /**
  * Controller Definition to encapsulate routes to work with blocks
@@ -90,7 +92,7 @@ class BlockController {
         if(stored_time!= undefined){
             //verify timestamp
             time_left  = time - stored_time;
-            if(time_left >= timeout){
+            if(time_left >= timeoutRequestsWindowTime){
                 idTimestamp.delete(id);
                 time_left = 0;
                 return "Address removed. Please make a new request."
@@ -126,6 +128,12 @@ class BlockController {
         return JSON.stringify(signed_response);
     }
 
+    encodeStore(body){
+        body["storyDecoded"] = body.story;
+        body.story = new Buffer(body.story).toString('hex');
+        return body;
+    }
+
     /**
      * Configure star registration endpoint to add a new Block, url: "/api/block"
      */
@@ -136,8 +144,8 @@ class BlockController {
             handler: async (request, h) => {
                 const payload = request.payload
                 if(payload.address == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
-
-                let block = new BlockClass.Block(payload);
+                let body = this.encodeStore(payload);
+                let block = new BlockClass.Block(body);
                 const newBlock = blockchain.addBlock(block);
                 return newBlock;
             }
