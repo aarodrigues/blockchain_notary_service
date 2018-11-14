@@ -27,6 +27,7 @@ class BlockController {
         this.requestStarRegistration();
         this.validateUserSignature();
         this.starRegistration();
+        this.getBlockByHash();
     }
 
     /**
@@ -41,6 +42,23 @@ class BlockController {
                 .then((value)=>{
                     return JSON.parse(value);
                 })
+             return block;
+            }
+        });
+    }
+
+
+    getBlockByHash() {
+        this.server.route({
+            method: 'GET',
+            path: '/stars/hash:{index}',
+            handler: async (request, h) => {
+             const block = await  blockchain.getBlockByHash(encodeURIComponent(request.params.index))
+                .then((value)=>{
+                    console.log(value);
+                    return JSON.parse(value);
+                })
+                console.log(block);
              return block;
             }
         });

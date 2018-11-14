@@ -2,7 +2,7 @@
 |  Learn more: level: https://github.com/Level/level     |
 |  =============================================================*/
 
-module.exports = {addLevelDBData, getLevelDBData, addDataToLevelDB, getAllData, lastRegister}
+module.exports = {addLevelDBData, getLevelDBData, addDataToLevelDB, getBlockByHash, getAllData, lastRegister}
 
 const level = require('level');
 const chainDB = './chaindata';
@@ -33,6 +33,25 @@ function addDataToLevelDB(value) {
         });
 }
 
+
+// Get block by hash
+function getBlockByHash(hash) {
+  let block = null;
+  return new Promise(function(resolve, reject){
+      db.createReadStream()
+      .on('data', function (data) {
+          if(data.hash === hash){
+              block = data;
+          }
+      })
+      .on('error', function (err) {
+          reject(err)
+      })
+      .on('close', function () {
+          resolve(block);
+      });
+  });
+}
 
 // get all data
 function getAllData() {

@@ -79,6 +79,11 @@
         return this.chain(blockHeight);
       }
 
+      // get block
+      getBlockByHash(hash){
+        return levelSandbox.getBlockByHash(hash);
+      }
+
       // validate block
       validateBlock(blockHeight){
         return new Promise((resolve, reject) => {
