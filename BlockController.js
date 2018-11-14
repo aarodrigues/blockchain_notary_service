@@ -2,6 +2,7 @@ const SHA256 = require('crypto-js/sha256');
 const BlockClass = require('./Block.js');
 const BlockChainClass = require('./simpleChain.js');
 const BitMsg = require('bitcoinjs-message');
+const DecodeHex = require('hex2ascii');
 
 let blockchain;
 let idTimestamp = new Map();
@@ -128,9 +129,13 @@ class BlockController {
         return JSON.stringify(signed_response);
     }
 
-    encodeStore(body){
-        body["storyDecoded"] = body.story;
-        body.story = new Buffer(body.story).toString('hex');
+    encodeStarStory(body){
+        body.star.story = new Buffer(body.star.story).toString('hex');
+        return body;
+    }
+
+    decodeStarStory(body){
+        body.star["storyDecoded"] = DecodeHex(body.star.story);
         return body;
     }
 
@@ -144,7 +149,7 @@ class BlockController {
             handler: async (request, h) => {
                 const payload = request.payload
                 if(payload.address == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
-                let body = this.encodeStore(payload);
+                let body = this.decodeStarStory(this.encodeStarStory(payload));
                 let block = new BlockClass.Block(body);
                 const newBlock = blockchain.addBlock(block);
                 return newBlock;
