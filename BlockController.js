@@ -3,8 +3,10 @@ const BlockClass = require('./Block.js');
 const BlockChainClass = require('./simpleChain.js');
 const BitMsg = require('bitcoinjs-message');
 const DecodeHex = require('hex2ascii');
+const MempoolClass = require('./Mempool.js');
 
 let blockchain;
+let mempool;
 let idTimestamp = new Map();
 
 const timeoutRequestsWindowTime = 5*60*1000;
@@ -28,6 +30,75 @@ class BlockController {
         this.validateUserSignature();
         this.starRegistration();
         this.getBlockByHash();
+    }
+
+    /**
+     * Implement a GET Endpoint to retrieve a block by index, url: "/api/block/:index"
+     */
+    requestStarRegistration() {
+        this.server.route({
+            method: 'POST',
+            path: '/requestValidation',
+            handler: async (request, h) => {
+                const payload = request.payload
+                if(payload.body == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
+                let address = payload.body;
+
+                return mempool.addRequestValidation(address);
+
+                // let message = this.timeValidate(address,false);
+                // return message
+            }
+        });
+    }
+
+    validateUserSignature() {
+        this.server.route({
+            method: 'POST',
+            path: '/message-signature/validate',
+            handler: async (request, h) => {
+                const payload = request.payload
+                if(payload.address == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
+                let wallet_address = payload.address;
+                let signed_message = payload.signature;
+
+                return mempool.validateRequestByWallet(wallet_address,signed_message);
+
+                // let message = wallet_address+":"+idTimestamp.get(wallet_address)+":starRegistry";
+
+                // let response = this.timeValidate(wallet_address,true);
+                // let valid =  BitMsg.verify(message,wallet_address,message_signature);
+                
+            }
+        });
+    }
+    
+    /**
+     * Configure star registration endpoint to add a new Block, url: "/api/block"
+     */
+    addBlock() {
+        this.server.route({
+            method: 'POST',
+            path: '/block',
+            handler: async (request, h) => {
+                const payload = request.payload
+                if(payload.address == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
+                let star = this.decodeStarStory(this.encodeStarStory(payload));
+                let block = new BlockClass.Block(star);
+                const newBlock = blockchain.addBlock(block);
+                return newBlock;
+            }
+        });
+    }
+    
+    encodeStarStory(body){
+        body.star.story = new Buffer(body.star.story).toString('hex');
+        return body;
+    }
+
+    decodeStarStory(body){
+        body.star["storyDecoded"] = DecodeHex(body.star.story);
+        return body;
     }
 
     /**
@@ -64,43 +135,8 @@ class BlockController {
         });
     }
 
-    /**
-     * Implement a GET Endpoint to retrieve a block by index, url: "/api/block/:index"
-     */
-    requestStarRegistration() {
-        this.server.route({
-            method: 'POST',
-            path: '/requestValidation',
-            handler: async (request, h) => {
-                const payload = request.payload
-                if(payload.body == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
-                let blockchainID = payload.body;
 
-                let message = this.timeValidate(blockchainID,false);
-                return message
-            }
-        });
-    }
 
-    validateUserSignature() {
-        this.server.route({
-            method: 'POST',
-            path: '/message-signature/validate',
-            handler: async (request, h) => {
-                const payload = request.payload
-                if(payload.address == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
-                let wallet_address = payload.address;
-                let message_signature = payload.signature;
-
-                let message = wallet_address+":"+idTimestamp.get(wallet_address)+":starRegistry";
-
-                let response = this.timeValidate(wallet_address,true);
-                let valid =  BitMsg.verify(message,wallet_address,message_signature);
-                return this.signedResponse(response,valid);
-
-            }
-        });
-    }
 
     timeValidate(id,signed){
         let time = new Date().valueOf();
@@ -147,15 +183,6 @@ class BlockController {
         return JSON.stringify(signed_response);
     }
 
-    encodeStarStory(body){
-        body.star.story = new Buffer(body.star.story).toString('hex');
-        return body;
-    }
-
-    decodeStarStory(body){
-        body.star["storyDecoded"] = DecodeHex(body.star.story);
-        return body;
-    }
 
     /**
      * Configure star registration endpoint to add a new Block, url: "/api/block"
@@ -181,6 +208,9 @@ class BlockController {
     initBlockChain() {
         if(blockchain != "undefined")
             blockchain = new BlockChainClass.Blockchain();
+
+        //if(mempool != "undefined")
+            mempool = new MempoolClass.Mempool();  
     }
 }
 
