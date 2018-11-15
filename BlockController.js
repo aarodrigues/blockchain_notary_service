@@ -28,7 +28,7 @@ class BlockController {
         this.getBlockByIndex();
         this.requestStarRegistration();
         this.validateUserSignature();
-        this.starRegistration();
+        this.addBlock();
         this.getBlockByHash();
     }
 
@@ -101,6 +101,24 @@ class BlockController {
         return body;
     }
 
+    getBlockByHash() {
+        this.server.route({
+            method: 'GET',
+            path: '/stars/hash:{index}',
+            handler: async (request, h) => {
+             const block = await  blockchain.getBlockByHash(encodeURIComponent(request.params.index))
+                .then((value)=>{
+                    value.body.star.story = DecodeHex(value.body.star.story);
+                    return value;
+                }).catch((err)=>{
+                    console.log("Block not found.");
+                });
+             return block;
+            }
+        });
+    }
+
+    
     /**
      * Implement a GET Endpoint to retrieve a block by index, url: "/api/block/:index"
      */
@@ -119,88 +137,6 @@ class BlockController {
     }
 
 
-    getBlockByHash() {
-        this.server.route({
-            method: 'GET',
-            path: '/stars/hash:{index}',
-            handler: async (request, h) => {
-             const block = await  blockchain.getBlockByHash(encodeURIComponent(request.params.index))
-                .then((value)=>{
-                    console.log(value);
-                    return JSON.parse(value);
-                })
-                console.log(block);
-             return block;
-            }
-        });
-    }
-
-
-
-
-    timeValidate(id,signed){
-        let time = new Date().valueOf();
-        let messageToSign;
-        let time_left = 0;
-        let stored_time = idTimestamp.get(id)
-        console.log(idTimestamp.get(id));
-        if(stored_time!= undefined){
-            //verify timestamp
-            time_left  = time - stored_time;
-            if(time_left >= timeoutRequestsWindowTime){
-                idTimestamp.delete(id);
-                time_left = 0;
-                return "Address removed. Please make a new request."
-            }
-        }else{
-            idTimestamp.set(id,time);
-        }
-
-        messageToSign = id+":"+time+":starRegistry";
-        return this.createJsonResponse(id,messageToSign,time_left,signed);
-    }
-
-    createJsonResponse(id,message,time_left,signed){
-        let response = {
-            address: id,
-            requestTimeStamp: idTimestamp.get(id),
-            message: message,
-            validationWindow: time_left
-        };
-        if(signed){
-            response["messageSignature"] = "valid";
-            return response;
-        }
-        return JSON.stringify(response);
-    }
-
-    signedResponse(response,valid){
-        valid ? response.messageSignature = "valid" : response.messageSignature = "invalid";
-        let signed_response = {
-            registerStar: valid,
-            status: response
-        }
-        return JSON.stringify(signed_response);
-    }
-
-
-    /**
-     * Configure star registration endpoint to add a new Block, url: "/api/block"
-     */
-    starRegistration() {
-        this.server.route({
-            method: 'POST',
-            path: '/block',
-            handler: async (request, h) => {
-                const payload = request.payload
-                if(payload.address == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
-                let body = this.decodeStarStory(this.encodeStarStory(payload));
-                let block = new BlockClass.Block(body);
-                const newBlock = blockchain.addBlock(block);
-                return newBlock;
-            }
-        });
-    }
 
     /**
      * Initializes blockchain object

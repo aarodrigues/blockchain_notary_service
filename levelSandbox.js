@@ -38,10 +38,10 @@ function addDataToLevelDB(value) {
 function getBlockByHash(hash) {
   let block = null;
   return new Promise(function(resolve, reject){
-      db.createReadStream()
-      .on('data', function (data) {
-          if(data.hash === hash){
-              block = data;
+    db.createReadStream()
+    .on('data', function (data) {
+          if(JSON.parse(data.value).hash === hash){
+              block = JSON.parse(data.value);
           }
       })
       .on('error', function (err) {
