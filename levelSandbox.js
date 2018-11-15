@@ -2,7 +2,7 @@
 |  Learn more: level: https://github.com/Level/level     |
 |  =============================================================*/
 
-module.exports = {addLevelDBData, getLevelDBData, addDataToLevelDB, getBlockByHash, getAllData, lastRegister}
+module.exports = {addLevelDBData, getLevelDBData, addDataToLevelDB, getBlockByHash, getBlockByWalletAddress, getBlockByHeight, getAllData, lastRegister}
 
 const level = require('level');
 const chainDB = './chaindata';
@@ -49,6 +49,43 @@ function getBlockByHash(hash) {
       })
       .on('close', function () {
           resolve(block);
+      });
+  });
+}
+
+// Get block by hash
+function getBlockByWalletAddress(address) {
+  list = [];
+  return new Promise(function(resolve, reject){
+    db.createReadStream()
+    .on('data', function (data) {
+          if(JSON.parse(data.value).body.address === address){
+            list.push(JSON.parse(data.value));
+          }
+      })
+      .on('error', function (err) {
+          reject(err)
+      })
+      .on('close', function () {
+          resolve(list);
+      });
+  });
+}
+
+// Get block by height
+function getBlockByHeight(height) {
+  return new Promise(function(resolve, reject) {
+      db.get(height, (err, value) => {
+          if(err){
+            if (err.type == 'NotFoundError') {
+                  resolve(undefined);
+            }else {
+                console.log('Block ' + height + ' get failed', err);
+                reject(err);
+            }
+          }else {
+            resolve(JSON.parse(value));
+          }
       });
   });
 }

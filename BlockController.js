@@ -30,6 +30,8 @@ class BlockController {
         this.validateUserSignature();
         this.addBlock();
         this.getBlockByHash();
+        this.getBlockByWalletAddress();
+        this.getBlockByHeight();
     }
 
     /**
@@ -104,9 +106,9 @@ class BlockController {
     getBlockByHash() {
         this.server.route({
             method: 'GET',
-            path: '/stars/hash:{index}',
+            path: '/stars/hash:{hash}',
             handler: async (request, h) => {
-             const block = await  blockchain.getBlockByHash(encodeURIComponent(request.params.index))
+             const block = await  blockchain.getBlockByHash(encodeURIComponent(request.params.hash))
                 .then((value)=>{
                     value.body.star.story = DecodeHex(value.body.star.story);
                     return value;
@@ -118,7 +120,41 @@ class BlockController {
         });
     }
 
-    
+    getBlockByWalletAddress() {
+        this.server.route({
+            method: 'GET',
+            path: '/stars/address:{address}',
+            handler: async (request, h) => {
+             const block_list = await  blockchain.getBlockByWalletAddress(encodeURIComponent(request.params.address))
+                .then((list)=>{
+                    for(let i = 0; i < list.length; i++)
+                        list[i].body.star.story = DecodeHex(list[i].body.star.story);
+                    return list;
+                }).catch((err)=>{
+                    console.log("Block not found.");
+                });
+             return block_list;
+            }
+        });
+    }
+
+    getBlockByHeight() {
+        this.server.route({
+            method: 'GET',
+            path: '/stars/block:{height}',
+            handler: async (request, h) => {
+             const block = await  blockchain.getBlockByHeight(encodeURIComponent(request.params.height))
+                .then((value)=>{
+                    value.body.star.story = DecodeHex(value.body.star.story);
+                    return value;
+                }).catch((err)=>{
+                    console.log("Block not found.");
+                });
+             return block;
+            }
+        });
+    }
+
     /**
      * Implement a GET Endpoint to retrieve a block by index, url: "/api/block/:index"
      */

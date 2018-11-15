@@ -84,6 +84,14 @@
         return levelSandbox.getBlockByHash(hash);
       }
 
+      getBlockByWalletAddress(address){
+        return levelSandbox.getBlockByWalletAddress(address);
+      }
+
+      getBlockByHeight(height){
+        return levelSandbox.getBlockByHeight(height);
+      }
+
       // validate block
       validateBlock(blockHeight){
         return new Promise((resolve, reject) => {
