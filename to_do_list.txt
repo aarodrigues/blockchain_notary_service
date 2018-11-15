@@ -1,0 +1,6 @@
+- Verify verifyAddressRequest use (its unused);
+- Verify decodeStarStory function;
+- Verify timeout requirements;
+- Test all features;
+- Update README.md;
+- Make merge;
