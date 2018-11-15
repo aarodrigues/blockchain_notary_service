@@ -1,16 +1,10 @@
-const SHA256 = require('crypto-js/sha256');
 const BlockClass = require('./Block.js');
 const BlockChainClass = require('./simpleChain.js');
-const BitMsg = require('bitcoinjs-message');
 const DecodeHex = require('hex2ascii');
 const MempoolClass = require('./Mempool.js');
 
 let blockchain;
 let mempool;
-let idTimestamp = new Map();
-
-const timeoutRequestsWindowTime = 5*60*1000;
-const TimeoutMempoolValidWindowTime = 30*60*1000;
 
 /**
  * Controller Definition to encapsulate routes to work with blocks
@@ -25,7 +19,6 @@ class BlockController {
         this.server = server;
         this.blocks = [];
         this.initBlockChain();
-        this.getBlockByIndex();
         this.requestStarRegistration();
         this.validateUserSignature();
         this.addBlock();
@@ -35,7 +28,7 @@ class BlockController {
     }
 
     /**
-     * Implement a GET Endpoint to retrieve a block by index, url: "/api/block/:index"
+     * Request a star validation"
      */
     requestStarRegistration() {
         this.server.route({
@@ -45,15 +38,14 @@ class BlockController {
                 const payload = request.payload
                 if(payload.body == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
                 let address = payload.body;
-
                 return mempool.addRequestValidation(address);
-
-                // let message = this.timeValidate(address,false);
-                // return message
             }
         });
     }
 
+    /**
+     * Validate user signature
+     */
     validateUserSignature() {
         this.server.route({
             method: 'POST',
@@ -63,20 +55,13 @@ class BlockController {
                 if(payload.address == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
                 let wallet_address = payload.address;
                 let signed_message = payload.signature;
-
                 return mempool.validateRequestByWallet(wallet_address,signed_message);
-
-                // let message = wallet_address+":"+idTimestamp.get(wallet_address)+":starRegistry";
-
-                // let response = this.timeValidate(wallet_address,true);
-                // let valid =  BitMsg.verify(message,wallet_address,message_signature);
-                
             }
         });
     }
     
     /**
-     * Configure star registration endpoint to add a new Block, url: "/api/block"
+     * Add new block with a star on blockchain"
      */
     addBlock() {
         this.server.route({
@@ -93,16 +78,27 @@ class BlockController {
         });
     }
     
+    /**
+     * Encode story
+     * @param {*} body 
+     */
     encodeStarStory(body){
         body.star.story = new Buffer(body.star.story).toString('hex');
         return body;
     }
 
+    /**
+     * Decode story
+     * @param {*} body 
+     */
     decodeStarStory(body){
         body.star["storyDecoded"] = DecodeHex(body.star.story);
         return body;
     }
 
+    /**
+     * Get block by hash
+     */
     getBlockByHash() {
         this.server.route({
             method: 'GET',
@@ -120,6 +116,9 @@ class BlockController {
         });
     }
 
+    /**
+     * Get blocks by wallet address
+     */
     getBlockByWalletAddress() {
         this.server.route({
             method: 'GET',
@@ -138,6 +137,9 @@ class BlockController {
         });
     }
 
+    /**
+     * Get block by height
+     */
     getBlockByHeight() {
         this.server.route({
             method: 'GET',
@@ -155,34 +157,15 @@ class BlockController {
         });
     }
 
-    /**
-     * Implement a GET Endpoint to retrieve a block by index, url: "/api/block/:index"
-     */
-    getBlockByIndex() {
-        this.server.route({
-            method: 'GET',
-            path: '/block/{index}',
-            handler: async (request, h) => {
-             const block = await  blockchain.getBlock(encodeURIComponent(request.params.index))
-                .then((value)=>{
-                    return JSON.parse(value);
-                })
-             return block;
-            }
-        });
-    }
-
-
 
     /**
-     * Initializes blockchain object
+     * Initializes blockchain and mempool object
      */
     initBlockChain() {
         if(blockchain != "undefined")
             blockchain = new BlockChainClass.Blockchain();
-
-        //if(mempool != "undefined")
-            mempool = new MempoolClass.Mempool();  
+        
+        mempool = new MempoolClass.Mempool();  
     }
 }
 

@@ -84,10 +84,12 @@
         return levelSandbox.getBlockByHash(hash);
       }
 
+      // get block by wallet address
       getBlockByWalletAddress(address){
         return levelSandbox.getBlockByWalletAddress(address);
       }
 
+      // get block by height
       getBlockByHeight(height){
         return levelSandbox.getBlockByHeight(height);
       }

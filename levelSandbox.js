@@ -53,7 +53,7 @@ function getBlockByHash(hash) {
   });
 }
 
-// Get block by hash
+// Get block by wallet address
 function getBlockByWalletAddress(address) {
   list = [];
   return new Promise(function(resolve, reject){

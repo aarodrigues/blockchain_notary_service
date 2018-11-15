@@ -7,12 +7,14 @@ class Mempool {
     constructor(){
         this.mempool = new Map();
         this.mempoolValid = new Map();
-        // this.mempool = [];
         // this.timeoutRequests = [];
-        // this.mempoolValid = [];
         // this.timeoutMempoolValid = [];
    }
 
+   /**
+    * Add a request to mempool
+    * @param {*} address 
+    */
    addRequestValidation(address){
        let time = this.mempool.get(address);
        let time_left;
@@ -22,13 +24,17 @@ class Mempool {
             this.mempool.set(address,time);
         }
         else{
-            time_left = this.setTimeOut(time);
+            time_left = this.getTimeOut(time);
             if(time_left == 0) this.mempool.delete(address);
         }
        return this.requestObject(address,time,time_left);
    }
 
-   setTimeOut(time){
+   /**
+    * Calculate request timeout
+    * @param {*} time 
+    */
+   getTimeOut(time){
         let time_passed = new Date().valueOf()-time;
         let time_left = timeoutRequestsWindowTime -time_passed;
         if(time_left <= 0){
@@ -38,6 +44,12 @@ class Mempool {
         return time_left;
    }
 
+   /**
+    * Create a object response
+    * @param {*} address 
+    * @param {*} time 
+    * @param {*} time_left 
+    */
    requestObject(address,time,time_left){
         let response = {
             walletAddress: address,
@@ -48,16 +60,28 @@ class Mempool {
         return response;
    }
 
+   /**
+    * Verify message validation
+    * @param {*} wallet_address 
+    * @param {*} signed_message 
+    */
    validateRequestByWallet(wallet_address,signed_message){
         let timestamp = this.mempool.get(wallet_address);
         let message = wallet_address+":"+timestamp+":starRegistry";
         let is_valid = false;
-        let time_left = this.setTimeOut(timestamp);
+        let time_left = this.getTimeOut(timestamp);
         if(time_left > 0)
             is_valid =  BitMsg.verify(message,wallet_address,signed_message);
         return this.validRequest(wallet_address,message, time_left,is_valid);
    }
 
+   /**
+    * Create valid mempool object
+    * @param {*} wallet_address 
+    * @param {*} message 
+    * @param {*} time_left 
+    * @param {*} valid 
+    */
    validRequest(wallet_address,message,time_left,valid){
         let response = {
             registerStar: valid,
@@ -74,6 +98,10 @@ class Mempool {
         return response;
    }
 
+   /**
+    * Verify if the request validation exists and if it is valid. 
+    * @param {*} wallet_address 
+    */
    verifyAddressRequest(wallet_address){
         let time = this.mempool.get(wallet_address);
         let valid_request;
