@@ -143,7 +143,7 @@ class BlockController {
     getBlockByHeight() {
         this.server.route({
             method: 'GET',
-            path: '/stars/block:{height}',
+            path: '/stars/block/{height}',
             handler: async (request, h) => {
              const block = await  blockchain.getBlockByHeight(encodeURIComponent(request.params.height))
                 .then((value)=>{
