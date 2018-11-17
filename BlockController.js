@@ -2,6 +2,7 @@ const BlockClass = require('./Block.js');
 const BlockChainClass = require('./Blockchain.js');
 const DecodeHex = require('hex2ascii');
 const MempoolClass = require('./Mempool.js');
+const BoomErrorHandle = require('boom');
 
 let blockchain;
 let mempool;
@@ -36,9 +37,8 @@ class BlockController {
             path: '/requestValidation',
             handler: async (request, h) => {
                 const payload = request.payload
-                if(payload.body == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
-                let address = payload.body;
-                return mempool.addRequestValidation(address);
+                if(payload.address == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
+                return mempool.addRequestValidation(payload.address);
             }
         });
     }
@@ -113,7 +113,7 @@ class BlockController {
                     value.body.star.story = this.decodeStarStory(value.body.star.story);
                     return value;
                 }).catch((err)=>{
-                    console.log("Block not found.");
+                    return BoomErrorHandle.notFound('Was not possibly find any star block by hash');
                 });
              return block;
             }
@@ -134,7 +134,7 @@ class BlockController {
                         list[i].body.star.story = this.decodeStarStory(list[i].body.star.story);
                     return list;
                 }).catch((err)=>{
-                    console.log("Block not found.");
+                    return BoomErrorHandle.notFound('Was not possibly find any star block by address');
                 });
              return block_list;
             }
@@ -154,7 +154,7 @@ class BlockController {
                     value.body.star.story = this.decodeStarStory(value.body.star.story);
                     return value;
                 }).catch((err)=>{
-                    console.log("Block not found.");
+                    return BoomErrorHandle.notFound('Was not possibly find any star block by height');
                 });
              return block;
             }

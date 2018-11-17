@@ -1,6 +1,6 @@
 const BitMsg = require('bitcoinjs-message');
 
-const timeoutRequestsWindowTime = 5*60*1000;
+const timeoutRequestsWindowTime = 1*60*1000//5*60*1000;
 
 class Mempool {
     constructor(){
@@ -17,7 +17,7 @@ class Mempool {
        let time_left;
         if(time == undefined){
             time = new Date().valueOf();
-            time_left = timeoutRequestsWindowTime;
+            time_left = timeoutRequestsWindowTime.toString().slice(0,-3);
             this.mempool.set(address,time);
             setTimeout(()=>{ this.mempool.delete(address) }, timeoutRequestsWindowTime );
         }
@@ -30,7 +30,8 @@ class Mempool {
 
 
    /**
-    * Calculate request timeout
+    * Calculate request timeout 
+    * return seconds
     * @param {*} time 
     */
    getTimeLeft(time){
@@ -40,7 +41,7 @@ class Mempool {
             
             time_left = 0;
         }   
-        return time_left;
+        return time_left.toString().slice(0,-3);
    }
 
    /**
@@ -71,6 +72,8 @@ class Mempool {
         let time_left = this.getTimeLeft(timestamp);
         if(time_left > 0)
             is_valid =  BitMsg.verify(message,wallet_address,signed_message);
+        else
+            time_left = 0;
         return this.validRequest(wallet_address,message, time_left,is_valid);
    }
 
