@@ -12,7 +12,7 @@ This project was build on linux operational system using NodeJS, but once this p
 
 ### Installing
 
-To running the project is necessary to install node.js, npm and the follows packages hapiJS, LevelDB and CryptoJS.
+To running the project is necessary to install node.js, npm and the follows packages hapiJS, LevelDB, CryptoJS, Hex2ascii and Bitcoinjs-message listed on package.json.
 
 #### Node.js
 
@@ -65,32 +65,132 @@ Use Curl or Postman to test the POST and GET methods.
 
 ### POST
 
-Create a block with data payload and add to the blockchain using a key "body". The block can be created send a request to url http://localhost:8000/block.  
-It should return the following response after create a new block:
+Use some web services tool as postman or curl to make requests to application.
+
+#### Request validation
+
+Submit a post request to the follow url http://localhost:8000/requestValidation to initiate star registration by acquiring a message as response to sign. The request wait to receive by payload a wallet address whose payload key is body.
+The request returns the follow information and will be valid for 5 min.
 
 ```json
 {
-    "hash": "e3f020e2cda598fc6f8635f6c4261e244fa819dbc21c783432e3ba09853382ee",
-    "height": 1,
-    "body": "Payload informed",
-    "time": "1540262814",
-    "previousBlockHash": "50a010fcdb3eb08056565191c0306b076ecd8818d6bf584344369bb1c30e79a4"
+    "walletAddress": "19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL",
+    "requestTimeStamp": "1541605128",
+    "message": "19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL:1541605128:starRegistry",
+    "validationWindow": 300
+}
+```
+#### Validate Request
+
+Submit a post request to the follow url http://localhost:8000/message-signature/validate to validate access to register a star. The user should sign the message sent as response from requestValidation url and submit through payload using address and signature names as keys.
+The request returns the follow json:
+
+```json
+{
+    "registerStar": true,
+    "status": {
+        "address": "19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL",
+        "requestTimeStamp": "1541605128",
+        "message": "19xaiMqayaNrn3x7AjV5cU4Mk5f5prRVpL:1541605128:starRegistry",
+        "validationWindow": 1760,
+        "messageSignature": true
+    }
 }
 ```
 
-### GET 
+#### Add star to blockchain
 
-Get a block from the chain based on blockchain height. The block can be retrieved send a request to url http://localhost:8000/block/{height}, where height is the block height on the chain.  
-It should return a json from database with a following format:  
-( Response from http://localhost:8000/block/0 )
+Submit a post request to the follow address http://localhost:8000/block to add a star in the body field on a private blockchain.
+The request returns a json with block description and the star data on body field as showed below.
 
 ```json
 {
-    "hash": "50a010fcdb3eb08056565191c0306b076ecd8818d6bf584344369bb1c30e79a4",
-    "height": 0,
-    "body": "First block in the chain - Genesis block",
-    "time": "1540262777",
-    "previousBlockHash": ""
+     "hash": "a59e9e399bc17c2db32a7a87379a8012f2c8e08dd661d7c0a6a4845d4f3ffb9f",
+      "height": 1,
+      "body": {
+           "address": "142BDCeSGbXjWKaAnYXbMpZ6sbrSAo3DpZ",
+           "star": {
+                "ra": "16h 29m 1.0s",
+                "dec": "-26° 29' 24.9",
+                "story": 
+        "466f756e642073746172207573696e672068747470733a2f2f7777772e676f6f676c652e636f6d2f736b792f",
+                "storyDecoded": "Found star using https://www.google.com/sky/"
+             }
+       },
+      "time": "1532296234",
+       "previousBlockHash": "49cce61ec3e6ae664514d5fa5722d86069cf981318fc303750ce66032d0acff3"
+}
+```
+
+
+### GET 
+
+#### Get block by hash
+
+Get a block from the chain based on blockchain hash. The block can be retrieved send a request to url http://localhost:8000/star/hash:{hash}, where {hash} is the block hash.  
+It returns a json from database in the following format: 
+
+```json
+{
+     "hash": "a59e9e399bc17c2db32a7a87379a8012f2c8e08dd661d7c0a6a4845d4f3ffb9f",
+      "height": 1,
+      "body": {
+           "address": "142BDCeSGbXjWKaAnYXbMpZ6sbrSAo3DpZ",
+           "star": {
+                "ra": "16h 29m 1.0s",
+                "dec": "-26° 29' 24.9",
+                "story":"Found star using https://www.google.com/sky/",
+                "storyDecoded": "Found star using https://www.google.com/sky/"
+             }
+       },
+      "time": "1532296234",
+       "previousBlockHash": "49cce61ec3e6ae664514d5fa5722d86069cf981318fc303750ce66032d0acff3"
+}
+```
+
+#### Get block by wallet address
+
+Get all blocks from the chain based on wallet address. The block list related to the same address can be retrieved send a request to url http://localhost:8000/star/address:{address}, where {address} is the block wallet address.  
+It returns a json from database in the following format with the decoded story:
+
+```json
+{
+     "hash": "a59e9e399bc17c2db32a7a87379a8012f2c8e08dd661d7c0a6a4845d4f3ffb9f",
+      "height": 1,
+      "body": {
+           "address": "142BDCeSGbXjWKaAnYXbMpZ6sbrSAo3DpZ",
+           "star": {
+                "ra": "16h 29m 1.0s",
+                "dec": "-26° 29' 24.9",
+                "story":"Found star using https://www.google.com/sky/",
+                "storyDecoded": "Found star using https://www.google.com/sky/"
+             }
+       },
+      "time": "1532296234",
+       "previousBlockHash": "49cce61ec3e6ae664514d5fa5722d86069cf981318fc303750ce66032d0acff3"
+}
+```
+
+#### Get block by height
+
+Get a block from the chain based on blockchain height. The block can be retrieved send a request to url http://localhost:8000/star/height/{height}, where {height} is the block height.  
+It returns a json from database in the following format: 
+
+```json
+{
+     "hash": "a59e9e399bc17c2db32a7a87379a8012f2c8e08dd661d7c0a6a4845d4f3ffb9f",
+      "height": 1,
+      "body": {
+           "address": "142BDCeSGbXjWKaAnYXbMpZ6sbrSAo3DpZ",
+           "star": {
+                "ra": "16h 29m 1.0s",
+                "dec": "-26° 29' 24.9",
+                "story":"Found star using https://www.google.com/sky/",
+                "storyDecoded": "Found star using https://www.google.com/sky/"
+             }
+       },
+      "time": "1532296234",
+       "previousBlockHash": "49cce61ec3e6ae664514d5fa5722d86069cf981318fc303750ce66032d0acff3"
 }
 ```
 
@@ -101,6 +201,8 @@ It should return a json from database with a following format:
 * [hapi.js](https://hapijs.com/) - Javascript framework to build applications and services
 * [npm](https://www.npmjs.com/) - Node Package Manager
 * [leveldb](http://leveldb.org/) - Library for persistence
+* [crypto-js](https://www.npmjs.com/package/crypto-js) - JavaScript library of crypto standards.
+* [bitcoinjs-message](https://www.npmjs.com/package/bitcoinjs-message) - JavaScript library to handle signature.
 
 ## Authors
 

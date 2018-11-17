@@ -4,3 +4,4 @@
 - Test all features;
 - Update README.md;
 - Make merge;
+- Verify that the user save just one star
