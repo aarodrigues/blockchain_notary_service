@@ -147,9 +147,8 @@ class BlockController {
     getBlockByHeight() {
         this.server.route({
             method: 'GET',
-            path: '/stars/block/{height}',
+            path: '/block/{height}',
             handler: async (request, h) => {
-                console.log("hahaha");
              const block = await  blockchain.getBlockByHeight(encodeURIComponent(request.params.height))
                 .then((value)=>{
                     value.body.star.story = this.decodeStarStory(value.body.star.story);
