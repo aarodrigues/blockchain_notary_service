@@ -203,6 +203,7 @@ It returns a json from database in the following format:
 * [leveldb](http://leveldb.org/) - Library for persistence
 * [crypto-js](https://www.npmjs.com/package/crypto-js) - JavaScript library of crypto standards.
 * [bitcoinjs-message](https://www.npmjs.com/package/bitcoinjs-message) - JavaScript library to handle signature.
+* [boom](https://www.npmjs.com/package/boom) - JavaScript HTTP-friendly error objects.
 
 ## Authors
 
