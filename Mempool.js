@@ -7,8 +7,6 @@ class Mempool {
     constructor(){
         this.mempool = new Map();
         this.mempoolValid = new Map();
-        // this.timeoutRequests = [];
-        // this.timeoutMempoolValid = [];
    }
 
    /**
@@ -22,19 +20,21 @@ class Mempool {
             time = new Date().valueOf();
             time_left = timeoutRequestsWindowTime;
             this.mempool.set(address,time);
+            setTimeout(()=>{ this.mempool.delete(address) }, timeoutRequestsWindowTime );
         }
         else{
-            time_left = this.getTimeOut(time);
-            if(time_left == 0) this.mempool.delete(address);
+            time_left = this.getTimeLeft(time);
         }
        return this.requestObject(address,time,time_left);
    }
+
+
 
    /**
     * Calculate request timeout
     * @param {*} time 
     */
-   getTimeOut(time){
+   getTimeLeft(time){
         let time_passed = new Date().valueOf()-time;
         let time_left = timeoutRequestsWindowTime -time_passed;
         if(time_left <= 0){
@@ -69,7 +69,7 @@ class Mempool {
         let timestamp = this.mempool.get(wallet_address);
         let message = wallet_address+":"+timestamp+":starRegistry";
         let is_valid = false;
-        let time_left = this.getTimeOut(timestamp);
+        let time_left = this.getTimeLeft(timestamp);
         if(time_left > 0)
             is_valid =  BitMsg.verify(message,wallet_address,signed_message);
         return this.validRequest(wallet_address,message, time_left,is_valid);

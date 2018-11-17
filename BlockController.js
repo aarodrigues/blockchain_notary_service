@@ -70,10 +70,14 @@ class BlockController {
             handler: async (request, h) => {
                 const payload = request.payload
                 if(payload.address == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
-                let star = this.decodeStarStory(this.encodeStarStory(payload));
-                let block = new BlockClass.Block(star);
-                const newBlock = blockchain.addBlock(block);
-                return newBlock;
+                if(mempool.verifyAddressRequest(payload.address)){
+                    payload.star["storyDecoded"] = payload.star.story;
+                    payload.star.story = this.encodeStarStory(payload.star.story);
+                    let block = new BlockClass.Block(payload);
+                    const newBlock = blockchain.addBlock(block);
+                    return newBlock;
+                }
+                return "Invalid address request!";
             }
         });
     }
@@ -82,18 +86,18 @@ class BlockController {
      * Encode story
      * @param {*} body 
      */
-    encodeStarStory(body){
-        body.star.story = new Buffer(body.star.story).toString('hex');
-        return body;
+    encodeStarStory(data){
+        let encoded = new Buffer(data).toString('hex');
+        return encoded;
     }
 
     /**
      * Decode story
      * @param {*} body 
      */
-    decodeStarStory(body){
-        body.star["storyDecoded"] = DecodeHex(body.star.story);
-        return body;
+    decodeStarStory(data){
+        let decoded = DecodeHex(data);
+        return decoded;
     }
 
     /**
@@ -106,7 +110,7 @@ class BlockController {
             handler: async (request, h) => {
              const block = await  blockchain.getBlockByHash(encodeURIComponent(request.params.hash))
                 .then((value)=>{
-                    value.body.star.story = DecodeHex(value.body.star.story);
+                    value.body.star.story = this.decodeStarStory(value.body.star.story);
                     return value;
                 }).catch((err)=>{
                     console.log("Block not found.");
@@ -127,7 +131,7 @@ class BlockController {
              const block_list = await  blockchain.getBlockByWalletAddress(encodeURIComponent(request.params.address))
                 .then((list)=>{
                     for(let i = 0; i < list.length; i++)
-                        list[i].body.star.story = DecodeHex(list[i].body.star.story);
+                        list[i].body.star.story = this.decodeStarStory(list[i].body.star.story);
                     return list;
                 }).catch((err)=>{
                     console.log("Block not found.");
@@ -145,9 +149,10 @@ class BlockController {
             method: 'GET',
             path: '/stars/block:{height}',
             handler: async (request, h) => {
+                console.log("hahaha");
              const block = await  blockchain.getBlockByHeight(encodeURIComponent(request.params.height))
                 .then((value)=>{
-                    value.body.star.story = DecodeHex(value.body.star.story);
+                    value.body.star.story = this.decodeStarStory(value.body.star.story);
                     return value;
                 }).catch((err)=>{
                     console.log("Block not found.");

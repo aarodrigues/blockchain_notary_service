@@ -91,6 +91,7 @@
 
       // get block by height
       getBlockByHeight(height){
+        console.log("hihihihi")
         return levelSandbox.getBlockByHeight(height);
       }
 
