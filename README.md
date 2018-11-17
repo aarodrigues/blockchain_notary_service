@@ -69,7 +69,7 @@ Use some web services tool as postman or curl to make requests to application.
 
 #### Request validation
 
-Submit a post request to the follow url http://localhost:8000/requestValidation to initiate star registration by acquiring a message as response to sign. The request wait to receive by payload a wallet address whose payload key is body.
+Submit a post request to the follow url http://localhost:8000/requestValidation to initiate star registration by acquiring a message as response to sign. The request wait to receive by payload a wallet address whose payload key is address.
 The request returns the follow information and will be valid for 5 min.
 
 ```json
