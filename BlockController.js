@@ -1,5 +1,5 @@
 const BlockClass = require('./Block.js');
-const BlockChainClass = require('./simpleChain.js');
+const BlockChainClass = require('./Blockchain.js');
 const DecodeHex = require('hex2ascii');
 const MempoolClass = require('./Mempool.js');
 

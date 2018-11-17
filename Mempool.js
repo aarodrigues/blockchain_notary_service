@@ -1,7 +1,6 @@
 const BitMsg = require('bitcoinjs-message');
 
 const timeoutRequestsWindowTime = 5*60*1000;
-const TimeoutMempoolValidWindowTime = 30*60*1000;
 
 class Mempool {
     constructor(){
