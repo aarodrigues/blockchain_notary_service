@@ -1,6 +1,6 @@
 const BitMsg = require('bitcoinjs-message');
 
-const timeoutRequestsWindowTime = 1*60*1000//5*60*1000;
+const timeoutRequestsWindowTime = 5*60*1000;
 
 class Mempool {
     constructor(){
@@ -67,6 +67,8 @@ class Mempool {
     */
    validateRequestByWallet(wallet_address,signed_message){
         let timestamp = this.mempool.get(wallet_address);
+        if(timestamp == undefined)
+            return "There is no valid request in mempool. Please submit a address to register star";
         let message = wallet_address+":"+timestamp+":starRegistry";
         let is_valid = false;
         let time_left = this.getTimeLeft(timestamp);
