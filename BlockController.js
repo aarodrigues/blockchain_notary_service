@@ -70,8 +70,10 @@ class BlockController {
             handler: async (request, h) => {
                 const payload = request.payload
                 if(payload.address == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
+                if(!this.verifyStarData(payload.star)){
+                    return "All star data fields need to be filled";
+                }
                 if(mempool.verifyAddressRequest(payload.address)){
-                    payload.star["storyDecoded"] = payload.star.story;
                     payload.star.story = this.encodeStarStory(payload.star.story);
                     let block = new BlockClass.Block(payload);
                     const newBlock = blockchain.addBlock(block);
@@ -80,6 +82,20 @@ class BlockController {
                 return "Invalid address request!";
             }
         });
+    }
+
+
+    verifyStarData(star){
+        if(star.dec != "" && star.ra != "" && star.story != ""){
+            let bytes = Buffer.byteLength(star.story.length, 'utf8');
+            if(bytes < 500 && this.isASCII())
+                return true;
+        }        
+        return false;
+    }
+
+    isASCII(str) {
+        return /^[\x00-\x7F]*$/.test(str);
     }
     
     /**
