@@ -71,7 +71,7 @@ class BlockController {
                 const payload = request.payload
                 if(payload.address == "") return "Erro, wasn't possible register a empty ID.\n(Empty payload)";
                 if(!this.verifyStarData(payload.star)){
-                    return "All star data fields need to be filled";
+                    return "Invalid data or some fields are empty. Please verify";
                 }
                 if(mempool.verifyAddressRequest(payload.address)){
                     payload.star.story = this.encodeStarStory(payload.star.story);
