@@ -130,7 +130,7 @@ class BlockController {
             handler: async (request, h) => {
              const block = await  blockchain.getBlockByHash(encodeURIComponent(request.params.hash))
                 .then((value)=>{
-                    value.body.star.story = this.decodeStarStory(value.body.star.story);
+                    value.body.star.storyDecoded = this.decodeStarStory(value.body.star.story);
                     return value;
                 }).catch((err)=>{
                     return BoomErrorHandle.notFound('Was not possibly find any star block by hash');
@@ -151,7 +151,7 @@ class BlockController {
              const block_list = await  blockchain.getBlockByWalletAddress(encodeURIComponent(request.params.address))
                 .then((list)=>{
                     for(let i = 0; i < list.length; i++)
-                        list[i].body.star.story = this.decodeStarStory(list[i].body.star.story);
+                        list[i].body.star.storyDecoded = this.decodeStarStory(list[i].body.star.story);
                     return list;
                 }).catch((err)=>{
                     return BoomErrorHandle.notFound('Was not possibly find any star block by address');
@@ -171,7 +171,7 @@ class BlockController {
             handler: async (request, h) => {
              const block = await  blockchain.getBlockByHeight(encodeURIComponent(request.params.height))
                 .then((value)=>{
-                    value.body.star.story = this.decodeStarStory(value.body.star.story);
+                    value.body.star.storyDecoded = this.decodeStarStory(value.body.star.story);
                     return value;
                 }).catch((err)=>{
                     return BoomErrorHandle.notFound('Was not possibly find any star block by height');
