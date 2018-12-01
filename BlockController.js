@@ -88,11 +88,13 @@ class BlockController {
 
 
     verifyStarData(star){
-        if(star.dec != "" && star.ra != "" && star.story != ""){
-            let bytes = Buffer.byteLength(star.story, 'utf8');
-            if(bytes < 500 && this.isASCII())
-                return true;
-        }        
+        if(star.hasOwnProperty("dec") && star.hasOwnProperty("ra")){
+            if(star.dec != "" && star.ra != "" && star.story != ""){
+                let bytes = Buffer.byteLength(star.story, 'utf8');
+                if(bytes < 500 && this.isASCII(star.story))
+                    return true;
+            }    
+        }
         return false;
     }
 
