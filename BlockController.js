@@ -77,6 +77,8 @@ class BlockController {
                     payload.star.story = this.encodeStarStory(payload.star.story);
                     let block = new BlockClass.Block(payload);
                     const newBlock = blockchain.addBlock(block);
+                    //Remove from mempool after saved
+                    mempool.mempoolValid.delete(payload.address);
                     return newBlock;
                 }
                 return "Invalid address request!";
@@ -87,7 +89,7 @@ class BlockController {
 
     verifyStarData(star){
         if(star.dec != "" && star.ra != "" && star.story != ""){
-            let bytes = Buffer.byteLength(star.story.length, 'utf8');
+            let bytes = Buffer.byteLength(star.story, 'utf8');
             if(bytes < 500 && this.isASCII())
                 return true;
         }        
